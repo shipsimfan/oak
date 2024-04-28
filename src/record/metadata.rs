@@ -25,21 +25,3 @@ pub struct LogRecordMetadata {
     /// The scope that emitted this log
     scope: Cow<'static, [u8]>,
 }
-
-impl LogRecordMetadata {
-    /// Creates a new [`LogRecordMetadata`]
-    pub(super) fn new<S1: Into<Cow<'static, [u8]>>, S2: Into<Cow<'static, [u8]>>>(
-        level: LogLevel,
-        resource: S1,
-        scope: S2,
-    ) -> Self {
-        LogRecordMetadata {
-            timestamp: SystemTime::now(),
-            trace_id: [0; 16],
-            span_id: [0; 16],
-            level,
-            resource: resource.into(),
-            scope: scope.into(),
-        }
-    }
-}
