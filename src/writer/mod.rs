@@ -1,4 +1,4 @@
-use crate::record::SerializedLogRecord;
+use crate::SerializedLogRecord;
 use std::sync::mpsc::Sender;
 
 // rustdoc imports
