@@ -1,4 +1,5 @@
 /// The type of list for filtering scopes
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FilterListType {
     /// Only logs scopes in the list
     Whitelist,
