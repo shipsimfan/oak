@@ -13,7 +13,7 @@ mod output;
 mod record;
 mod writer;
 
-pub use controller::LogController;
+pub use controller::{FilterListType, LogController};
 pub use formatter::{
     CompactJSONLogFormatter, LogFormatter, MessageOnlyLogFormatter, PrettyJSONLogFormatter,
     ReadableLogFormatter,
