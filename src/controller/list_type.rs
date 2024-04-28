@@ -7,9 +7,3 @@ pub enum FilterListType {
     /// Logs all scopes except those in the list
     Blacklist,
 }
-
-impl Default for FilterListType {
-    fn default() -> Self {
-        FilterListType::Blacklist
-    }
-}
