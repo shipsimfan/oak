@@ -25,3 +25,43 @@ pub struct LogRecordMetadata {
     /// The scope that emitted this log
     scope: Cow<'static, str>,
 }
+
+impl LogRecordMetadata {
+    /// Gets the timestamp of the record
+    pub fn timestamp(&self) -> SystemTime {
+        self.timestamp
+    }
+
+    /// Gets the trace ID of the record
+    pub fn trace_id(&self) -> Option<[u8; 16]> {
+        if self.trace_id == [0; 16] {
+            return None;
+        }
+
+        Some(self.trace_id)
+    }
+
+    /// Gets the span ID of the record
+    pub fn span_id(&self) -> Option<[u8; 16]> {
+        if self.span_id == [0; 16] {
+            return None;
+        }
+
+        Some(self.span_id)
+    }
+
+    /// Gets the severity of the record
+    pub fn level(&self) -> LogLevel {
+        self.level
+    }
+
+    /// The source of this log
+    pub fn resource(&self) -> &str {
+        &self.resource
+    }
+
+    /// The instrumentation scope of this log
+    pub fn scope(&self) -> &str {
+        &self.scope
+    }
+}
