@@ -1,5 +1,5 @@
-use crate::{writer::LogWriter, LogLevel, LogOutput};
-use std::borrow::Cow;
+use crate::{writer::LogWriter, LogLevel, LogOutput, Logger};
+use std::{borrow::Cow, sync::Arc};
 
 mod list_type;
 
@@ -11,7 +11,7 @@ pub struct LogController {
     filter_list_type: FilterListType,
 
     /// The list of scopes to filter for
-    filter_list: Vec<Cow<'static, [u8]>>,
+    filter_list: Vec<Cow<'static, str>>,
 
     /// The minimum [`LogLevel`] to log. Logs must be greater than or equal to this severity to log
     min_level: LogLevel,
@@ -25,13 +25,13 @@ pub struct LogController {
 
 impl LogController {
     /// Creates a new [`LogController`]
-    pub fn new<S: Into<Cow<'static, [u8]>>>(
+    pub fn new<S: Into<Cow<'static, str>>>(
         min_level: LogLevel,
         max_level: Option<LogLevel>,
         filter_list_type: FilterListType,
         filter_list: Vec<S>,
         outputs: Vec<Box<dyn LogOutput>>,
-    ) -> std::io::Result<Self> {
+    ) -> std::io::Result<Arc<Self>> {
         if let Some(max_level) = max_level {
             assert!(min_level <= max_level);
         }
@@ -40,12 +40,21 @@ impl LogController {
 
         let writer = LogWriter::new(outputs)?;
 
-        Ok(LogController {
+        Ok(Arc::new(LogController {
             filter_list_type,
             filter_list,
             min_level,
             max_level,
             writer,
-        })
+        }))
+    }
+
+    /// Creates a new [`Logger`]
+    pub fn create_logger<S: Into<Cow<'static, str>>>(self: &Arc<Self>, scope: S) -> Logger {
+        let scope = scope.into();
+
+        let is_filtered = self.filter_list_type.filter(&scope, &self.filter_list);
+
+        Logger::new(self.clone(), scope, is_filtered)
     }
 }

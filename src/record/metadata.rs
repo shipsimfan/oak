@@ -20,8 +20,8 @@ pub struct LogRecordMetadata {
     level: LogLevel,
 
     /// The source of this log
-    resource: Cow<'static, [u8]>,
+    resource: Cow<'static, str>,
 
     /// The scope that emitted this log
-    scope: Cow<'static, [u8]>,
+    scope: Cow<'static, str>,
 }
