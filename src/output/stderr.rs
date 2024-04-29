@@ -1,4 +1,4 @@
-use crate::{LogFormatter, LogOutput, SerializedLogRecord};
+use crate::{LogFormatter, LogOutput, ReadableLogFormatter, SerializedLogRecord};
 use std::{
     borrow::Cow,
     io::{stderr, Stderr},
@@ -38,5 +38,11 @@ impl<F: LogFormatter> LogOutput for StderrLogOutput<F> {
 
     fn output(&mut self, record: &SerializedLogRecord) {
         self.formatter.format(&mut self.output.lock(), record).ok();
+    }
+}
+
+impl Default for StderrLogOutput<ReadableLogFormatter> {
+    fn default() -> Self {
+        StderrLogOutput::new(ReadableLogFormatter::new(), "stderr")
     }
 }
