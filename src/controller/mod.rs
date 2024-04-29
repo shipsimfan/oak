@@ -1,4 +1,4 @@
-use crate::{writer::LogWriter, LogLevel, LogOutput, Logger};
+use crate::{record::LogRecord, writer::LogWriter, LogLevel, LogOutput, Logger};
 use std::{borrow::Cow, sync::Arc};
 
 mod list_type;
@@ -8,7 +8,7 @@ pub use list_type::FilterListType;
 /// The central controller for log settings and output
 pub struct LogController {
     /// The name of this log source
-    resource: Cow<'static, str>,
+    resource: Arc<Cow<'static, str>>,
 
     /// The type of list for filtering scopes
     filter_list_type: FilterListType,
@@ -45,7 +45,7 @@ impl LogController {
         let writer = LogWriter::new(outputs)?;
 
         Ok(Arc::new(LogController {
-            resource: resource.into(),
+            resource: Arc::new(resource.into()),
             filter_list_type,
             filter_list,
             min_level,
@@ -58,8 +58,28 @@ impl LogController {
     pub fn create_logger<S: Into<Cow<'static, str>>>(self: &Arc<Self>, scope: S) -> Logger {
         let scope = scope.into();
 
-        let is_filtered = self.filter_list_type.filter(&scope, &self.filter_list);
+        let should_log = self.filter_list_type.filter(&scope, &self.filter_list);
 
-        Logger::new(self.clone(), scope, is_filtered)
+        Logger::new(self.clone(), scope, should_log)
+    }
+
+    /// Should a record with `level` severity be logged?
+    pub(crate) fn should_log(&self, level: LogLevel) -> bool {
+        let mut result = level >= self.min_level;
+        if let Some(max_level) = self.max_level {
+            result &= level < max_level;
+        }
+        result
+    }
+
+    /// Logs `record` to the outputs
+    pub(crate) fn log(&self, record: LogRecord) {
+        let serialized_record = Arc::new(record.serialize());
+        self.writer.write(serialized_record);
+    }
+
+    /// Gets the resource name for logs
+    pub(crate) fn resource(&self) -> Arc<Cow<'static, str>> {
+        self.resource.clone()
     }
 }

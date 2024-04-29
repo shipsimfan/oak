@@ -1,4 +1,4 @@
-use crate::LogController;
+use crate::{LogController, LogLevel, LogRecord, LogRecordMetadata};
 use std::{borrow::Cow, sync::Arc};
 
 /// An instrumentation scope which produces log records
@@ -8,10 +8,10 @@ pub struct Logger {
     controller: Arc<LogController>,
 
     /// The scope name
-    scope: Cow<'static, str>,
+    scope: Arc<Cow<'static, str>>,
 
     /// Has this scope been filtered to not log?
-    is_filtered: bool,
+    should_log: bool,
 }
 
 impl Logger {
@@ -19,12 +19,51 @@ impl Logger {
     pub(crate) fn new(
         controller: Arc<LogController>,
         scope: Cow<'static, str>,
-        is_filtered: bool,
+        should_log: bool,
     ) -> Self {
         Logger {
             controller,
             scope: scope.into(),
-            is_filtered,
+            should_log,
         }
+    }
+
+    /// Logs an event
+    pub fn log(&self, level: LogLevel, message: &dyn std::fmt::Display) {
+        self.log_trace(level, message, [0; 16])
+    }
+
+    /// Logs an event with a `trace_id
+    pub fn log_trace(&self, level: LogLevel, message: &dyn std::fmt::Display, trace_id: [u8; 16]) {
+        self.log_span(level, message, trace_id, [0; 16])
+    }
+
+    /// Logs an event with a `trace_id` and a `span_id`
+    pub fn log_span(
+        &self,
+        level: LogLevel,
+        message: &dyn std::fmt::Display,
+        trace_id: [u8; 16],
+        span_id: [u8; 16],
+    ) {
+        if !self.should_log {
+            return;
+        }
+
+        if !self.controller.should_log(level) {
+            return;
+        }
+
+        let record = LogRecord::new(
+            LogRecordMetadata::new(
+                trace_id,
+                span_id,
+                level,
+                self.controller.resource(),
+                self.scope.clone(),
+            ),
+            message,
+        );
+        self.controller.log(record);
     }
 }

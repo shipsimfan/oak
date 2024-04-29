@@ -29,4 +29,11 @@ impl LogWriter {
 
         Ok(LogWriter { senders })
     }
+
+    /// Sends `record` to the writer thread
+    pub(crate) fn write(&self, record: Arc<SerializedLogRecord>) {
+        for sender in &self.senders {
+            sender.send(record.clone()).ok();
+        }
+    }
 }

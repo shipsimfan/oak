@@ -15,6 +15,11 @@ pub struct SerializedLogRecord {
 }
 
 impl SerializedLogRecord {
+    /// Creates a new [`SerializedLogRecord`]
+    pub(crate) fn new(metadata: LogRecordMetadata, message: String) -> Self {
+        SerializedLogRecord { metadata, message }
+    }
+
     /// Gets the message describing this record
     pub fn message(&self) -> &str {
         &self.message

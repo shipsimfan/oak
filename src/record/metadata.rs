@@ -1,5 +1,5 @@
 use crate::LogLevel;
-use std::{borrow::Cow, time::SystemTime};
+use std::{borrow::Cow, sync::Arc, time::SystemTime};
 
 // rustdoc imports
 #[allow(unused_imports)]
@@ -20,13 +20,30 @@ pub struct LogRecordMetadata {
     level: LogLevel,
 
     /// The source of this log
-    resource: Cow<'static, str>,
+    resource: Arc<Cow<'static, str>>,
 
     /// The scope that emitted this log
-    scope: Cow<'static, str>,
+    scope: Arc<Cow<'static, str>>,
 }
 
 impl LogRecordMetadata {
+    pub(crate) fn new(
+        trace_id: [u8; 16],
+        span_id: [u8; 16],
+        level: LogLevel,
+        resource: Arc<Cow<'static, str>>,
+        scope: Arc<Cow<'static, str>>,
+    ) -> Self {
+        LogRecordMetadata {
+            timestamp: SystemTime::now(),
+            trace_id,
+            span_id,
+            level,
+            resource,
+            scope,
+        }
+    }
+
     /// Gets the timestamp of the record
     pub fn timestamp(&self) -> SystemTime {
         self.timestamp

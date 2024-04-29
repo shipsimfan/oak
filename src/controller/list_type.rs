@@ -11,7 +11,7 @@ pub enum FilterListType {
 }
 
 impl FilterListType {
-    /// Checks if `item` shouldn't be allowed based on the `filter_list` and this type
+    /// Checks if `item` should be allowed based on the `filter_list` and this type
     pub(super) fn filter(&self, item: &str, filter_list: &[Cow<'static, str>]) -> bool {
         let mut contains = false;
         for filter in filter_list {
@@ -22,8 +22,8 @@ impl FilterListType {
         }
 
         match self {
-            FilterListType::Blacklist => contains,
-            FilterListType::Whitelist => !contains,
+            FilterListType::Blacklist => !contains,
+            FilterListType::Whitelist => contains,
         }
     }
 }
