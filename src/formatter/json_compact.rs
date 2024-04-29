@@ -7,7 +7,23 @@ use std::io::Write;
 use crate::LogRecord;
 
 /// Formats [`LogRecord`]s as JSON using no extra spacing or newlines
-pub struct CompactJSONLogFormatter;
+pub struct CompactJSONLogFormatter {
+    /// The timezone offset in minutes
+    offset: i16,
+}
+
+impl CompactJSONLogFormatter {
+    /// Creates a new [`CompactJSONLogFormatter`]
+    pub const fn new() -> Self {
+        CompactJSONLogFormatter { offset: 0 }
+    }
+
+    /// Sets the timezone `offset` in minutes
+    pub const fn set_offset(mut self, offset: i16) -> Self {
+        self.offset = offset;
+        self
+    }
+}
 
 impl LogFormatter for CompactJSONLogFormatter {
     fn format(
@@ -19,7 +35,7 @@ impl LogFormatter for CompactJSONLogFormatter {
         output.write_all(b"{")?;
 
         output.write_all(b"timestamp:\"")?;
-        write_time(output, metadata.timestamp())?;
+        write_time(output, metadata.timestamp(), self.offset)?;
         output.write_all(b"\",")?;
 
         if let Some(trace_id) = metadata.trace_id() {
@@ -43,5 +59,11 @@ impl LogFormatter for CompactJSONLogFormatter {
         write!(output, "message:\"{}\"", message)?;
 
         output.write_all(b"}")
+    }
+}
+
+impl Default for CompactJSONLogFormatter {
+    fn default() -> Self {
+        CompactJSONLogFormatter::new()
     }
 }

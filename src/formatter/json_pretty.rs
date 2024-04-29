@@ -10,12 +10,24 @@ use crate::LogRecord;
 pub struct PrettyJSONLogFormatter {
     /// The number of spaces to tab
     tab_size: usize,
+
+    /// The timezone offset in minutes
+    offset: i16,
 }
 
 impl PrettyJSONLogFormatter {
     /// Creates a new [`PrettyJSONLogFormatter`]
     pub const fn new(tab_size: usize) -> Self {
-        PrettyJSONLogFormatter { tab_size }
+        PrettyJSONLogFormatter {
+            tab_size,
+            offset: 0,
+        }
+    }
+
+    /// Sets the timezone `offset` in minutes
+    pub const fn set_offset(mut self, offset: i16) -> Self {
+        self.offset = offset;
+        self
     }
 
     /// Writes a tab of indentation
@@ -38,7 +50,7 @@ impl LogFormatter for PrettyJSONLogFormatter {
 
         self.write_tab(output)?;
         output.write_all(b"timestamp: \"")?;
-        write_time(output, metadata.timestamp())?;
+        write_time(output, metadata.timestamp(), self.offset)?;
         output.write_all(b"\",\n")?;
 
         if let Some(trace_id) = metadata.trace_id() {
@@ -73,6 +85,6 @@ impl LogFormatter for PrettyJSONLogFormatter {
 
 impl Default for PrettyJSONLogFormatter {
     fn default() -> Self {
-        PrettyJSONLogFormatter { tab_size: 4 }
+        PrettyJSONLogFormatter::new(4)
     }
 }

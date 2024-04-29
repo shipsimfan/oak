@@ -4,7 +4,11 @@ use std::{
 };
 
 /// Writes `system_time` to `output` as an ISO 8601 date-time
-pub(super) fn write_time(output: &mut dyn Write, system_time: SystemTime) -> std::io::Result<()> {
+pub(super) fn write_time(
+    output: &mut dyn Write,
+    system_time: SystemTime,
+    offset: i16,
+) -> std::io::Result<()> {
     let total_millis = system_time
         .duration_since(UNIX_EPOCH)
         .unwrap_or(Duration::ZERO)
@@ -34,9 +38,17 @@ pub(super) fn write_time(output: &mut dyn Write, system_time: SystemTime) -> std
 
     write!(
         output,
-        "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}Z",
+        "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}",
         year, month, day, hour, minute, second, milli
-    )
+    )?;
+    if offset == 0 {
+        write!(output, "Z")
+    } else {
+        let offset_hour = offset / 60;
+        let offset_minute = (offset % 60).abs();
+
+        write!(output, "{:02}:{:02}", offset_hour, offset_minute)
+    }
 }
 
 /// Writes `id` to `output` as lowercase hex
