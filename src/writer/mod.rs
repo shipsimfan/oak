@@ -9,19 +9,24 @@ mod thread;
 
 /// A thread which writes [`LogRecord`]s to [`LogOutput`]s
 pub(crate) struct LogWriter {
-    /// The queue of logs to the thread
-    sender: Sender<SerializedLogRecord>,
+    /// The queue of logs to the threads
+    senders: Vec<Sender<SerializedLogRecord>>,
 }
 
 impl LogWriter {
     /// Creates a new [`LogWriter`] thread
     pub(crate) fn new(outputs: Vec<Box<dyn LogOutput>>) -> std::io::Result<Self> {
-        let (sender, receiver) = std::sync::mpsc::channel();
+        let mut senders = Vec::with_capacity(outputs.len());
 
-        std::thread::Builder::new()
-            .name("oak log writer".to_owned())
-            .spawn(move || thread::run(receiver, outputs))?;
+        for output in outputs {
+            let (sender, receiver) = std::sync::mpsc::channel();
 
-        Ok(LogWriter { sender })
+            std::thread::Builder::new()
+                .name("oak log writer".to_owned())
+                .spawn(move || thread::run(receiver, output))?;
+            senders.push(sender);
+        }
+
+        Ok(LogWriter { senders })
     }
 }

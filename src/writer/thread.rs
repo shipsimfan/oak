@@ -6,14 +6,8 @@ use std::sync::mpsc::Receiver;
 use crate::LogWriter;
 
 /// The main entry point for the [`LogWriter`] thread
-pub(super) fn run(receiver: Receiver<SerializedLogRecord>, mut outputs: Vec<Box<dyn LogOutput>>) {
+pub(super) fn run(receiver: Receiver<SerializedLogRecord>, mut output: Box<dyn LogOutput>) {
     while let Ok(record) = receiver.recv() {
-        output_record(record, &mut outputs);
-    }
-}
-
-fn output_record(record: SerializedLogRecord, outputs: &mut [Box<dyn LogOutput>]) {
-    for output in outputs {
-        output.output(&record);
+        output.output(record);
     }
 }

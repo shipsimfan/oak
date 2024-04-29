@@ -25,7 +25,7 @@ impl<F: LogFormatter> StderrLogOutput<F> {
 }
 
 impl<F: LogFormatter> LogOutput for StderrLogOutput<F> {
-    fn output(&mut self, record: &SerializedLogRecord) {
+    fn output(&mut self, record: SerializedLogRecord) {
         self.formatter.format(&mut self.output.lock(), record).ok();
     }
 }

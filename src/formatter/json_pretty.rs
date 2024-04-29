@@ -43,7 +43,7 @@ impl LogFormatter for PrettyJSONLogFormatter {
     fn format(
         &mut self,
         output: &mut dyn Write,
-        record: &SerializedLogRecord,
+        record: SerializedLogRecord,
     ) -> std::io::Result<()> {
         output.write_all(b"{\n")?;
 

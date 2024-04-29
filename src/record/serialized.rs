@@ -19,6 +19,11 @@ impl SerializedLogRecord {
     pub fn message(&self) -> &str {
         &self.message
     }
+
+    /// Unwraps this record and returns the contained message
+    pub fn take_message(self) -> String {
+        self.message
+    }
 }
 
 impl Deref for SerializedLogRecord {

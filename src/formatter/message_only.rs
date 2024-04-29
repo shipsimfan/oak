@@ -12,7 +12,7 @@ impl LogFormatter for MessageOnlyLogFormatter {
     fn format(
         &mut self,
         output: &mut dyn Write,
-        record: &SerializedLogRecord,
+        record: SerializedLogRecord,
     ) -> std::io::Result<()> {
         output.write_all(record.message().as_bytes())?;
         output.write_all(b"\n")
