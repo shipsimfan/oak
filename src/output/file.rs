@@ -27,7 +27,7 @@ impl<F: LogFormatter> FileLogOutput<F> {
 }
 
 impl<F: LogFormatter> LogOutput for FileLogOutput<F> {
-    fn output(&mut self, record: SerializedLogRecord) {
+    fn output(&mut self, record: &SerializedLogRecord) {
         self.formatter.format(&mut self.file, record).ok();
     }
 }

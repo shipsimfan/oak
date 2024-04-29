@@ -29,7 +29,7 @@ impl LogFormatter for CompactJSONLogFormatter {
     fn format(
         &mut self,
         output: &mut dyn Write,
-        record: SerializedLogRecord,
+        record: &SerializedLogRecord,
     ) -> std::io::Result<()> {
         output.write_all(b"{")?;
 
@@ -55,7 +55,7 @@ impl LogFormatter for CompactJSONLogFormatter {
 
         write!(output, "scope:\"{}\",", record.scope())?;
 
-        write!(output, "message:\"{}\"", record.message)?;
+        write!(output, "message:\"{}\"", record.message())?;
 
         output.write_all(b"}\n")
     }

@@ -11,7 +11,14 @@ pub struct SerializedLogRecord {
     metadata: LogRecordMetadata,
 
     /// The serialized message describing the event
-    pub message: String,
+    message: String,
+}
+
+impl SerializedLogRecord {
+    /// Gets the message describing this record
+    pub fn message(&self) -> &str {
+        &self.message
+    }
 }
 
 impl Deref for SerializedLogRecord {

@@ -13,5 +13,7 @@ pub(super) fn run(receiver: Receiver<SerializedLogRecord>, mut outputs: Vec<Box<
 }
 
 fn output_record(record: SerializedLogRecord, outputs: &mut [Box<dyn LogOutput>]) {
-    todo!()
+    for output in outputs {
+        output.output(&record);
+    }
 }

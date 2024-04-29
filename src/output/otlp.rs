@@ -8,7 +8,7 @@ use crate::LogRecord;
 pub struct OTLPLogOutput {}
 
 impl LogOutput for OTLPLogOutput {
-    fn output(&mut self, _: SerializedLogRecord) {
+    fn output(&mut self, _: &SerializedLogRecord) {
         todo!()
     }
 }
