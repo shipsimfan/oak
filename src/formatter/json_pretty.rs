@@ -1,5 +1,5 @@
 use super::{write_id, write_time};
-use crate::{LogFormatter, LogRecordMetadata};
+use crate::{LogFormatter, SerializedLogRecord};
 use std::io::Write;
 
 // rustdoc imports
@@ -43,24 +43,23 @@ impl LogFormatter for PrettyJSONLogFormatter {
     fn format(
         &mut self,
         output: &mut dyn Write,
-        metadata: &LogRecordMetadata,
-        message: &str,
+        record: SerializedLogRecord,
     ) -> std::io::Result<()> {
         output.write_all(b"{\n")?;
 
         self.write_tab(output)?;
         output.write_all(b"timestamp: \"")?;
-        write_time(output, metadata.timestamp(), self.offset)?;
+        write_time(output, record.timestamp(), self.offset)?;
         output.write_all(b"\",\n")?;
 
-        if let Some(trace_id) = metadata.trace_id() {
+        if let Some(trace_id) = record.trace_id() {
             self.write_tab(output)?;
             output.write_all(b"trace_id: \"")?;
             write_id(output, trace_id)?;
             output.write_all(b"\",\n")?;
         }
 
-        if let Some(span_id) = metadata.span_id() {
+        if let Some(span_id) = record.span_id() {
             self.write_tab(output)?;
             output.write_all(b"span_id: \"")?;
             write_id(output, span_id)?;
@@ -68,18 +67,18 @@ impl LogFormatter for PrettyJSONLogFormatter {
         }
 
         self.write_tab(output)?;
-        write!(output, "level: \"{}\",\n", metadata.level())?;
+        write!(output, "level: \"{}\",\n", record.level())?;
 
         self.write_tab(output)?;
-        write!(output, "resource: \"{}\",\n", metadata.resource())?;
+        write!(output, "resource: \"{}\",\n", record.resource())?;
 
         self.write_tab(output)?;
-        write!(output, "scope: \"{}\",\n", metadata.scope())?;
+        write!(output, "scope: \"{}\",\n", record.scope())?;
 
         self.write_tab(output)?;
-        write!(output, "message: \"{}\"\n", message)?;
+        write!(output, "message: \"{}\"\n", record.message)?;
 
-        output.write_all(b"}")
+        output.write_all(b"}\n")
     }
 }
 

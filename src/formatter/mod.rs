@@ -1,4 +1,4 @@
-use crate::LogRecordMetadata;
+use crate::SerializedLogRecord;
 use common::{write_id, write_time};
 use std::io::Write;
 
@@ -23,7 +23,6 @@ pub trait LogFormatter: 'static + Send {
     fn format(
         &mut self,
         output: &mut dyn Write,
-        metadata: &LogRecordMetadata,
-        message: &str,
+        record: SerializedLogRecord,
     ) -> std::io::Result<()>;
 }

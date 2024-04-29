@@ -6,10 +6,10 @@ use std::{
 /// Writes `system_time` to `output` as an ISO 8601 date-time
 pub(super) fn write_time(
     output: &mut dyn Write,
-    system_time: SystemTime,
+    timestamp: SystemTime,
     offset: i16,
 ) -> std::io::Result<()> {
-    let total_millis = system_time
+    let total_millis = timestamp
         .duration_since(UNIX_EPOCH)
         .unwrap_or(Duration::ZERO)
         .as_millis();

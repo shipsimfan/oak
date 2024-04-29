@@ -20,7 +20,6 @@ pub use formatter::{
 };
 pub use logger::Logger;
 pub use output::{FileLogOutput, LogOutput, OTLPLogOutput, StderrLogOutput, StdoutLogOutput};
-pub use record::{LogLevel, LogRecord, LogRecordMetadata};
+pub use record::{LogLevel, LogRecord, LogRecordMetadata, SerializedLogRecord};
 
-use record::SerializedLogRecord;
 use writer::LogWriter;

@@ -1,4 +1,4 @@
-use crate::{LogFormatter, LogRecordMetadata};
+use crate::{LogFormatter, SerializedLogRecord};
 use std::io::Write;
 
 // rustdoc imports
@@ -12,9 +12,9 @@ impl LogFormatter for MessageOnlyLogFormatter {
     fn format(
         &mut self,
         output: &mut dyn Write,
-        _: &LogRecordMetadata,
-        message: &str,
+        record: SerializedLogRecord,
     ) -> std::io::Result<()> {
-        output.write_all(message.as_bytes())
+        output.write_all(record.message.as_bytes())?;
+        output.write_all(b"\n")
     }
 }

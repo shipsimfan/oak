@@ -1,5 +1,5 @@
 use super::{write_id, write_time};
-use crate::{LogFormatter, LogRecordMetadata};
+use crate::{LogFormatter, SerializedLogRecord};
 use std::io::Write;
 
 // rustdoc imports
@@ -29,36 +29,35 @@ impl LogFormatter for CompactJSONLogFormatter {
     fn format(
         &mut self,
         output: &mut dyn Write,
-        metadata: &LogRecordMetadata,
-        message: &str,
+        record: SerializedLogRecord,
     ) -> std::io::Result<()> {
         output.write_all(b"{")?;
 
         output.write_all(b"timestamp:\"")?;
-        write_time(output, metadata.timestamp(), self.offset)?;
+        write_time(output, record.timestamp(), self.offset)?;
         output.write_all(b"\",")?;
 
-        if let Some(trace_id) = metadata.trace_id() {
+        if let Some(trace_id) = record.trace_id() {
             output.write_all(b"trace_id:\"")?;
             write_id(output, trace_id)?;
             output.write_all(b"\",")?;
         }
 
-        if let Some(span_id) = metadata.span_id() {
+        if let Some(span_id) = record.span_id() {
             output.write_all(b"span_id:\"")?;
             write_id(output, span_id)?;
             output.write_all(b"\",")?;
         }
 
-        write!(output, "level:\"{}\",", metadata.level())?;
+        write!(output, "level:\"{}\",", record.level())?;
 
-        write!(output, "resource:\"{}\",", metadata.resource())?;
+        write!(output, "resource:\"{}\",", record.resource())?;
 
-        write!(output, "scope:\"{}\",", metadata.scope())?;
+        write!(output, "scope:\"{}\",", record.scope())?;
 
-        write!(output, "message:\"{}\"", message)?;
+        write!(output, "message:\"{}\"", record.message)?;
 
-        output.write_all(b"}")
+        output.write_all(b"}\n")
     }
 }
 

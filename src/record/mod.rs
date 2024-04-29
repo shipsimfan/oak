@@ -4,8 +4,7 @@ mod serialized;
 
 pub use level::LogLevel;
 pub use metadata::LogRecordMetadata;
-
-pub(crate) use serialized::SerializedLogRecord;
+pub use serialized::SerializedLogRecord;
 
 /// A message to be logged
 pub struct LogRecord<'a> {

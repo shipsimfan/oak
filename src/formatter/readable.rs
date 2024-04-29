@@ -1,5 +1,5 @@
 use super::write_time;
-use crate::{LogFormatter, LogRecordMetadata};
+use crate::{LogFormatter, SerializedLogRecord};
 use std::io::Write;
 
 // rustdoc imports
@@ -29,13 +29,12 @@ impl LogFormatter for ReadableLogFormatter {
     fn format(
         &mut self,
         output: &mut dyn Write,
-        metadata: &LogRecordMetadata,
-        message: &str,
+        record: SerializedLogRecord,
     ) -> std::io::Result<()> {
-        write!(output, "[{}][{}][", metadata.level(), metadata.scope())?;
+        write!(output, "[{}][{}][", record.level(), record.scope())?;
 
-        write_time(output, metadata.timestamp(), self.offset)?;
+        write_time(output, record.timestamp(), self.offset)?;
 
-        write!(output, "] {}", message)
+        write!(output, "] {}\n", record.message)
     }
 }
