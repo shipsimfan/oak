@@ -1,5 +1,5 @@
 use crate::SerializedLogRecord;
-use std::sync::mpsc::Sender;
+use std::sync::{mpsc::Sender, Arc};
 
 // rustdoc imports
 #[allow(unused_imports)]
@@ -10,7 +10,7 @@ mod thread;
 /// A thread which writes [`LogRecord`]s to [`LogOutput`]s
 pub(crate) struct LogWriter {
     /// The queue of logs to the threads
-    senders: Vec<Sender<SerializedLogRecord>>,
+    senders: Vec<Sender<Arc<SerializedLogRecord>>>,
 }
 
 impl LogWriter {
@@ -22,7 +22,7 @@ impl LogWriter {
             let (sender, receiver) = std::sync::mpsc::channel();
 
             std::thread::Builder::new()
-                .name("oak log writer".to_owned())
+                .name(format!("oak log writer ({})", output.name()))
                 .spawn(move || thread::run(receiver, output))?;
             senders.push(sender);
         }

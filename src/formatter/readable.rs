@@ -29,7 +29,7 @@ impl LogFormatter for ReadableLogFormatter {
     fn format(
         &mut self,
         output: &mut dyn Write,
-        record: SerializedLogRecord,
+        record: &SerializedLogRecord,
     ) -> std::io::Result<()> {
         write!(output, "[{}][{}][", record.level(), record.scope())?;
 

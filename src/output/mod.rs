@@ -16,6 +16,9 @@ pub use stdout::StdoutLogOutput;
 
 /// An output for [`LogRecord`]s
 pub trait LogOutput: 'static + Send {
+    /// Gets the name of this output
+    fn name(&self) -> &str;
+
     /// Write `record` to this output
-    fn output(&mut self, record: SerializedLogRecord);
+    fn output(&mut self, record: &SerializedLogRecord);
 }

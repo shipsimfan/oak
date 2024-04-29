@@ -1,5 +1,8 @@
 use crate::{LogFormatter, LogOutput, SerializedLogRecord};
-use std::io::{stdout, Stdout};
+use std::{
+    borrow::Cow,
+    io::{stdout, Stdout},
+};
 
 // rustdoc imports
 #[allow(unused_imports)]
@@ -7,6 +10,9 @@ use crate::LogRecord;
 
 /// Writes [`LogRecord`]s to [`stdout`]
 pub struct StdoutLogOutput<F: LogFormatter> {
+    /// The name of this output
+    name: Cow<'static, str>,
+
     /// Standard out itself
     output: Stdout,
 
@@ -16,16 +22,21 @@ pub struct StdoutLogOutput<F: LogFormatter> {
 
 impl<F: LogFormatter> StdoutLogOutput<F> {
     /// Creates a new [`StdoutLogOutput`]
-    pub fn new(formatter: F) -> Self {
+    pub fn new<S: Into<Cow<'static, str>>>(formatter: F, name: S) -> Self {
         StdoutLogOutput {
             output: stdout(),
             formatter,
+            name: name.into(),
         }
     }
 }
 
 impl<F: LogFormatter> LogOutput for StdoutLogOutput<F> {
-    fn output(&mut self, record: SerializedLogRecord) {
+    fn name(&self) -> &str {
+        &self.name
+    }
+
+    fn output(&mut self, record: &SerializedLogRecord) {
         self.formatter.format(&mut self.output.lock(), record).ok();
     }
 }

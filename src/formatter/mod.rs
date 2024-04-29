@@ -23,6 +23,6 @@ pub trait LogFormatter: 'static + Send {
     fn format(
         &mut self,
         output: &mut dyn Write,
-        record: SerializedLogRecord,
+        record: &SerializedLogRecord,
     ) -> std::io::Result<()>;
 }
