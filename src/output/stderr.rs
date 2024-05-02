@@ -22,12 +22,19 @@ pub struct StderrLogOutput<F: LogFormatter> {
 
 impl<F: LogFormatter> StderrLogOutput<F> {
     /// Creates a new [`StderrLogOutput`]
-    pub fn new<S: Into<Cow<'static, str>>>(formatter: F, name: S) -> Self {
-        StderrLogOutput {
+    pub fn new<S: Into<Cow<'static, str>>>(formatter: F, name: S) -> Box<dyn LogOutput> {
+        Box::new(StderrLogOutput {
             output: stderr(),
             formatter,
             name: name.into(),
-        }
+        })
+    }
+}
+
+impl StderrLogOutput<ReadableLogFormatter> {
+    /// Creates a new [`StderrLogOutput`] with a default name and readable formatter
+    pub fn default() -> Box<dyn LogOutput> {
+        StderrLogOutput::new(ReadableLogFormatter::new(), "stderr")
     }
 }
 
@@ -38,11 +45,5 @@ impl<F: LogFormatter> LogOutput for StderrLogOutput<F> {
 
     fn output(&mut self, record: &SerializedLogRecord) {
         self.formatter.format(&mut self.output.lock(), record).ok();
-    }
-}
-
-impl Default for StderrLogOutput<ReadableLogFormatter> {
-    fn default() -> Self {
-        StderrLogOutput::new(ReadableLogFormatter::new(), "stderr")
     }
 }

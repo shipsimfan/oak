@@ -27,14 +27,14 @@ impl<F: LogFormatter> FileLogOutput<F> {
         path: P,
         formatter: F,
         name: S,
-    ) -> std::io::Result<Self> {
+    ) -> std::io::Result<Box<dyn LogOutput>> {
         let file = OpenOptions::new().create(true).append(true).open(path)?;
 
-        Ok(FileLogOutput {
+        Ok(Box::new(FileLogOutput {
             file,
             formatter,
             name: name.into(),
-        })
+        }))
     }
 }
 
