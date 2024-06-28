@@ -6,11 +6,13 @@ use crate::LogRecord;
 
 mod file;
 mod otlp;
+mod standard;
 mod stderr;
 mod stdout;
 
 pub use file::FileLogOutput;
 pub use otlp::OTLPLogOutput;
+pub use standard::StdLogOutput;
 pub use stderr::StderrLogOutput;
 pub use stdout::StdoutLogOutput;
 

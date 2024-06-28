@@ -19,7 +19,9 @@ pub use formatter::{
     ReadableLogFormatter,
 };
 pub use logger::Logger;
-pub use output::{FileLogOutput, LogOutput, OTLPLogOutput, StderrLogOutput, StdoutLogOutput};
+pub use output::{
+    FileLogOutput, LogOutput, OTLPLogOutput, StdLogOutput, StderrLogOutput, StdoutLogOutput,
+};
 pub use record::{LogLevel, LogRecordMetadata, SerializedLogRecord};
 
 use record::LogRecord;
