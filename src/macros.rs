@@ -1,16 +1,16 @@
 /// Logs `arg` to `logger` with `severity`
 #[macro_export]
 macro_rules! log {
-    ($logger: expr, $severity: ident, $arg: literal) => {
-        $logger.log($crate::Severity::$severity, $arg)
+    ($logger: expr, $log_level: ident, $arg: literal) => {
+        $logger.log($crate::LogLevel::$log_level, $arg)
     };
 
-    ($logger: expr, $severity: ident, $arg: expr) => {
-        $logger.log($crate::Severity::$severity, &$arg)
+    ($logger: expr, $log_level: ident, $arg: expr) => {
+        $logger.log($crate::LogLevel::$log_level, &$arg)
     };
 
-    ($logger: expr, $severity: ident, $fmt: literal, $($arg:tt)*) => {
-        $logger.log($crate::Severity::$severity, &::std::format_args!($fmt, $($arg)*))
+    ($logger: expr, $log_level: ident, $fmt: literal, $($arg:tt)*) => {
+        $logger.log($crate::LogLevel::$log_level, &::std::format_args!($fmt, $($arg)*))
     };
 }
 
