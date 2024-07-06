@@ -1,5 +1,5 @@
 use crate::{LogController, LogLevel, LogRecord, LogRecordMetadata};
-use std::{borrow::Cow, sync::Arc};
+use std::{borrow::Cow, fmt::Display, sync::Arc};
 
 /// An instrumentation scope which produces log records
 #[derive(Clone)]
@@ -29,20 +29,20 @@ impl Logger {
     }
 
     /// Logs an event
-    pub fn log(&self, level: LogLevel, message: &dyn std::fmt::Display) {
+    pub fn log<D: Display>(&self, level: LogLevel, message: D) {
         self.log_trace(level, message, [0; 16])
     }
 
     /// Logs an event with a `trace_id
-    pub fn log_trace(&self, level: LogLevel, message: &dyn std::fmt::Display, trace_id: [u8; 16]) {
+    pub fn log_trace<D: Display>(&self, level: LogLevel, message: D, trace_id: [u8; 16]) {
         self.log_span(level, message, trace_id, [0; 16])
     }
 
     /// Logs an event with a `trace_id` and a `span_id`
-    pub fn log_span(
+    pub fn log_span<D: Display>(
         &self,
         level: LogLevel,
-        message: &dyn std::fmt::Display,
+        message: D,
         trace_id: [u8; 16],
         span_id: [u8; 16],
     ) {

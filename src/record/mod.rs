@@ -2,22 +2,24 @@ mod level;
 mod metadata;
 mod serialized;
 
+use std::fmt::Display;
+
 pub use level::LogLevel;
 pub use metadata::LogRecordMetadata;
 pub use serialized::SerializedLogRecord;
 
 /// A message to be logged
-pub(crate) struct LogRecord<'a> {
+pub(crate) struct LogRecord<D: Display> {
     /// The metadata about this record
     metadata: LogRecordMetadata,
 
     /// The message describing the event
-    message: &'a dyn std::fmt::Display,
+    message: D,
 }
 
-impl<'a> LogRecord<'a> {
+impl<D: Display> LogRecord<D> {
     /// Creates a new [`LogRecord`]
-    pub(crate) fn new(metadata: LogRecordMetadata, message: &'a dyn std::fmt::Display) -> Self {
+    pub(crate) fn new(metadata: LogRecordMetadata, message: D) -> Self {
         LogRecord { metadata, message }
     }
 

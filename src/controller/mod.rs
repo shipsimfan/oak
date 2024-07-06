@@ -1,5 +1,5 @@
 use crate::{record::LogRecord, writer::LogWriter, LogLevel, LogOutput, Logger};
-use std::{borrow::Cow, sync::Arc};
+use std::{borrow::Cow, fmt::Display, sync::Arc};
 
 mod list_type;
 
@@ -73,7 +73,7 @@ impl LogController {
     }
 
     /// Logs `record` to the outputs
-    pub(crate) fn log(&self, record: LogRecord) {
+    pub(crate) fn log<D: Display>(&self, record: LogRecord<D>) {
         let serialized_record = Arc::new(record.serialize());
         self.writer.write(serialized_record);
     }

@@ -9,6 +9,7 @@
 mod controller;
 mod formatter;
 mod logger;
+mod macros;
 mod output;
 mod record;
 mod writer;
