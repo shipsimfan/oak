@@ -1,6 +1,7 @@
-use super::{write_id, write_time};
+use super::write_id;
 use crate::{LogFormatter, SerializedLogRecord};
 use std::io::Write;
+use time::{DateTime, SimpleTimeZone, TimeZone, Timestamp};
 
 // rustdoc imports
 #[allow(unused_imports)]
@@ -8,20 +9,14 @@ use crate::LogRecord;
 
 /// Formats [`LogRecord`]s as JSON using no extra spacing or newlines
 pub struct CompactJSONLogFormatter {
-    /// The timezone offset in minutes
-    offset: i16,
+    /// The time zone
+    time_zone: SimpleTimeZone,
 }
 
 impl CompactJSONLogFormatter {
     /// Creates a new [`CompactJSONLogFormatter`]
-    pub const fn new() -> Self {
-        CompactJSONLogFormatter { offset: 0 }
-    }
-
-    /// Sets the timezone `offset` in minutes
-    pub const fn set_offset(mut self, offset: i16) -> Self {
-        self.offset = offset;
-        self
+    pub fn new() -> Self {
+        CompactJSONLogFormatter { time_zone: SimpleTimeZone::local() }
     }
 }
 
@@ -33,9 +28,13 @@ impl LogFormatter for CompactJSONLogFormatter {
     ) -> std::io::Result<()> {
         output.write_all(b"{")?;
 
-        output.write_all(b"timestamp:\"")?;
-        write_time(output, record.timestamp(), self.offset)?;
-        output.write_all(b"\",")?;
+        let mut timestamp: Timestamp = record.timestamp().into();
+        timestamp.change_timezone(self.time_zone);
+        write!(
+            output,
+            "timestamp: \"{}\",",
+            DateTime::from(timestamp).iso8601()
+        )?;
 
         if let Some(trace_id) = record.trace_id() {
             output.write_all(b"trace_id:\"")?;

@@ -1,5 +1,5 @@
 use crate::SerializedLogRecord;
-use common::{write_id, write_time};
+use common::write_id;
 use std::io::Write;
 
 mod common;

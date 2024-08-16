@@ -1,4 +1,5 @@
-use super::{write_id, write_time};
+use time::{DateTime, SimpleTimeZone, TimeZone, Timestamp};
+use super::write_id;
 use crate::{LogFormatter, SerializedLogRecord};
 use std::io::Write;
 
@@ -11,23 +12,17 @@ pub struct PrettyJSONLogFormatter {
     /// The number of spaces to tab
     tab_size: usize,
 
-    /// The timezone offset in minutes
-    offset: i16,
+    /// The time zone
+    time_zone: SimpleTimeZone,
 }
 
 impl PrettyJSONLogFormatter {
     /// Creates a new [`PrettyJSONLogFormatter`]
-    pub const fn new(tab_size: usize) -> Self {
+    pub fn new(tab_size: usize) -> Self {
         PrettyJSONLogFormatter {
             tab_size,
-            offset: 0,
+            time_zone: SimpleTimeZone::local(),
         }
-    }
-
-    /// Sets the timezone `offset` in minutes
-    pub const fn set_offset(mut self, offset: i16) -> Self {
-        self.offset = offset;
-        self
     }
 
     /// Writes a tab of indentation
@@ -48,9 +43,9 @@ impl LogFormatter for PrettyJSONLogFormatter {
         output.write_all(b"{\n")?;
 
         self.write_tab(output)?;
-        output.write_all(b"timestamp: \"")?;
-        write_time(output, record.timestamp(), self.offset)?;
-        output.write_all(b"\",\n")?;
+        let mut timestamp: Timestamp = record.timestamp().into();
+        timestamp.change_timezone(self.time_zone);
+        write!(output, "timestamp: \"{}\",\n", DateTime::from(timestamp).iso8601())?;
 
         if let Some(trace_id) = record.trace_id() {
             self.write_tab(output)?;
@@ -78,7 +73,7 @@ impl LogFormatter for PrettyJSONLogFormatter {
         self.write_tab(output)?;
         write!(output, "message: \"{}\"\n", record.message())?;
 
-        output.write_all(b"}\n")
+        output.write_all(b"}")
     }
 }
 

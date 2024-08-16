@@ -1,6 +1,6 @@
-use super::write_time;
 use crate::{LogFormatter, SerializedLogRecord};
 use std::io::Write;
+use time::{DateTime, SimpleTimeZone, TimeZone, Timestamp};
 
 // rustdoc imports
 #[allow(unused_imports)]
@@ -8,20 +8,16 @@ use crate::LogRecord;
 
 /// Formats [`LogRecord`]s in a human readable way, including metadata
 pub struct ReadableLogFormatter {
-    /// The timezone offset in minutes
-    offset: i16,
+    /// The time zone
+    time_zone: SimpleTimeZone,
 }
 
 impl ReadableLogFormatter {
     /// Creates a new [`CompactJSONLogFormatter`]
-    pub const fn new() -> Self {
-        ReadableLogFormatter { offset: 0 }
-    }
-
-    /// Sets the timezone `offset` in minutes
-    pub const fn set_offset(mut self, offset: i16) -> Self {
-        self.offset = offset;
-        self
+    pub fn new() -> Self {
+        ReadableLogFormatter {
+            time_zone: SimpleTimeZone::local(),
+        }
     }
 }
 
@@ -31,10 +27,16 @@ impl LogFormatter for ReadableLogFormatter {
         output: &mut dyn Write,
         record: &SerializedLogRecord,
     ) -> std::io::Result<()> {
-        write!(output, "[{}][{}][", record.level(), record.scope())?;
+        let mut timestamp: Timestamp = record.timestamp().into();
+        timestamp.change_timezone(self.time_zone);
 
-        write_time(output, record.timestamp(), self.offset)?;
-
-        write!(output, "] {}\n", record.message())
+        write!(
+            output,
+            "[{}][{}][{}] {}",
+            record.level(),
+            record.scope(),
+            DateTime::from(timestamp).iso8601(),
+            record.message()
+        )
     }
 }
