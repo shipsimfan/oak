@@ -1,7 +1,7 @@
 use crate::{LogFormatter, LogOutput, ReadableLogFormatter, SerializedLogRecord};
 use std::{
     borrow::Cow,
-    io::{stdout, Stdout},
+    io::{stdout, Stdout, Write},
 };
 
 // rustdoc imports
@@ -44,6 +44,9 @@ impl<F: LogFormatter> LogOutput for StdoutLogOutput<F> {
     }
 
     fn output(&mut self, record: &SerializedLogRecord) {
-        self.formatter.format(&mut self.output.lock(), record).ok();
+        let mut output = self.output.lock();
+
+        self.formatter.format(&mut output, record).ok();
+        output.write_all(b"\n").ok();
     }
 }

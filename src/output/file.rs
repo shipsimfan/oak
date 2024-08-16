@@ -2,6 +2,7 @@ use crate::{LogFormatter, LogOutput, SerializedLogRecord};
 use std::{
     borrow::Cow,
     fs::{File, OpenOptions},
+    io::Write,
     path::Path,
 };
 
@@ -45,5 +46,6 @@ impl<F: LogFormatter> LogOutput for FileLogOutput<F> {
 
     fn output(&mut self, record: &SerializedLogRecord) {
         self.formatter.format(&mut self.file, record).ok();
+        self.file.write_all(b"\n").ok();
     }
 }
