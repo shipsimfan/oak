@@ -21,7 +21,8 @@ pub use formatter::{
 };
 pub use logger::Logger;
 pub use output::{
-    FileLogOutput, LogOutput, OTLPLogOutput, StdLogOutput, StderrLogOutput, StdoutLogOutput,
+    FileLogOutput, LogOutput, OTLPLogOutput, OpenStdLogOutputError, StdLogOutput, StderrLogOutput,
+    StdoutLogOutput,
 };
 pub use record::{LogLevel, LogRecordMetadata, SerializedLogRecord};
 

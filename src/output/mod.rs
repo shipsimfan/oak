@@ -12,7 +12,7 @@ mod stdout;
 
 pub use file::FileLogOutput;
 pub use otlp::OTLPLogOutput;
-pub use standard::StdLogOutput;
+pub use standard::{OpenStdLogOutputError, StdLogOutput};
 pub use stderr::StderrLogOutput;
 pub use stdout::StdoutLogOutput;
 
