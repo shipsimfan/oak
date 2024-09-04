@@ -20,9 +20,21 @@ pub struct OpenStdLogOutputError(std::io::Error, PathBuf);
 impl StdLogOutput {
     /// Converts a [`Vec`] of this into a [`Vec`] of `Box<dyn LogOutput>`s
     pub fn convert_vec(
-        outputs: Vec<StdLogOutput>,
+        outputs: &[StdLogOutput],
     ) -> Result<Vec<Box<dyn LogOutput>>, OpenStdLogOutputError> {
-        outputs.into_iter().map(TryInto::try_into).collect()
+        outputs.iter().map(StdLogOutput::into_log_output).collect()
+    }
+
+    /// Get open a [`LogOutput`] from this
+    pub fn into_log_output(&self) -> Result<Box<dyn LogOutput>, OpenStdLogOutputError> {
+        match self {
+            StdLogOutput::Stdout => Ok(StdoutLogOutput::default()),
+            StdLogOutput::Stderr => Ok(StderrLogOutput::default()),
+            StdLogOutput::File(path) => {
+                FileLogOutput::open(path, ReadableLogFormatter::new(), "file")
+                    .map_err(|error| OpenStdLogOutputError(error, path.clone()))
+            }
+        }
     }
 }
 
@@ -38,25 +50,15 @@ impl FromStr for StdLogOutput {
     }
 }
 
-impl TryInto<Box<dyn LogOutput>> for StdLogOutput {
-    type Error = OpenStdLogOutputError;
-
-    fn try_into(self) -> Result<Box<dyn LogOutput>, OpenStdLogOutputError> {
-        match self {
-            StdLogOutput::Stdout => Ok(StdoutLogOutput::default()),
-            StdLogOutput::Stderr => Ok(StderrLogOutput::default()),
-            StdLogOutput::File(path) => {
-                FileLogOutput::open(&path, ReadableLogFormatter::new(), "file")
-                    .map_err(|error| OpenStdLogOutputError(error, path))
-            }
-        }
-    }
-}
-
 impl std::error::Error for OpenStdLogOutputError {}
 
 impl std::fmt::Display for OpenStdLogOutputError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "unable to open log output \"{}\" - {}", self.1.display(), self.0)
+        write!(
+            f,
+            "unable to open log output \"{}\" - {}",
+            self.1.display(),
+            self.0
+        )
     }
 }
